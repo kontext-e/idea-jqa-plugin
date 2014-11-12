@@ -2,6 +2,7 @@ package de.kontext_e.idea.plugins.jqa;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.AbstractAction;
@@ -48,7 +49,7 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
         openFindTool(resolvePsiElements(queryNeo4j()));
     }
 
-    Usage[] resolvePsiElements(java.util.List<String> usagesList) {
+    Usage[] resolvePsiElements(List<String> usagesList) {
         java.util.List<PsiJavaFile> resolvedPsiElements = new ArrayList<PsiJavaFile>(usagesList.size());
         Iterator<PsiFileSystemItem> psiFileSystemItemIterator = PluginUtil.allPsiItemsIn(myProject);
         while (psiFileSystemItemIterator.hasNext()) {
@@ -73,12 +74,19 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
         return usages.toArray(new Usage[usages.size()]);
     }
 
-    java.util.List<String> queryNeo4j() {
-        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(myProject.getBasePath() + "/" + neo4jPath.getText())
-                .setConfig(GraphDatabaseSettings.read_only, "true")
-                .newGraphDatabase();
+    List<String> queryNeo4j() {
+        GraphDatabaseService graphDb = null;
+        String path = myProject.getBasePath() + "/" + neo4jPath.getText();
+        try {
+            graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path)
+                    .setConfig(GraphDatabaseSettings.read_only, "true")
+                    .newGraphDatabase();
+        } catch (Exception e) {
+            show("Could not open Neo4j database at "+path);
+            return Collections.emptyList();
+        }
 
-        java.util.List<String> usages = new ArrayList<String>();
+        List<String> usages = new ArrayList<String>();
         try {
             Transaction tx = graphDb.beginTx();
             ExecutionEngine engine = new ExecutionEngine(graphDb);
