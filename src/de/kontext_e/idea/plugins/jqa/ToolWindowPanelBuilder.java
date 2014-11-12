@@ -30,8 +30,8 @@ public class ToolWindowPanelBuilder {
         tmpStoreTextField = new JTextField();
         tmpStoreTextField.setText("jqassistant/store");
         gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -40,15 +40,15 @@ public class ToolWindowPanelBuilder {
         label2.setText("Query");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weighty = 1.0;
+        gbc.gridy = 2;
+//        gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.NORTHWEST;
         panel1.add(label2, gbc);
         matchNCLASSReturnTextArea = new JTextArea();
         matchNCLASSReturnTextArea.setText("match (n:Class) return n LIMIT 10");
         gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 3;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
@@ -59,8 +59,8 @@ public class ToolWindowPanelBuilder {
         button1.addActionListener(new FindInNeo4jDatabaseAction(matchNCLASSReturnTextArea, tmpStoreTextField, project));
 
         gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 3;
+        gbc.gridx = 0;
+        gbc.gridy = 4;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel1.add(button1, gbc);
         return panel1;
