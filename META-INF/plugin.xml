@@ -1,0 +1,48 @@
+<idea-plugin version="2">
+  <id>de.kontext_e.idea.plugins.jqa</id>
+  <name>jQAssistant Plugin</name>
+  <version>0.1</version>
+  <vendor email="j.nerche@kontext-e.de" url="http://www.kontext-e.de">Kontext E GmbH</vendor>
+
+  <description><![CDATA[
+      Execute queries against an existing jQAssistant database and show results in the Find Toolwindow.<br>
+      So you can search for code using Neo4J Cypher database queries.
+    ]]></description>
+
+  <change-notes><![CDATA[
+      Initial spike.<br>
+    ]]>
+  </change-notes>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+  <idea-version since-build="131"/>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+    <toolWindow id="Find using jQA DB" secondary="true" icon="/de/kontext_e/idea/plugins/jqa/jqa-kurz-weiß_16.png" anchor="right" factoryClass="de.kontext_e.idea.plugins.jqa.QueryToolWindow"   >
+
+    </toolWindow>
+  </extensions>
+
+  <application-components>
+    <!-- Add your application components here -->
+  </application-components>
+
+  <project-components>
+    <!-- Add your project components here -->
+  </project-components>
+
+  <actions>
+    <!-- Add your actions here -->
+    <action id="jqaQueries" class="de.kontext_e.idea.plugins.jqa.JqaQueryAction" text="Find with jQA" description="Execute a Cypher query to find code">
+      <add-to-group group-id="FindMenuGroup" anchor="after" relative-to-action="StructuralSearchPlugin.StructuralReplaceAction"/>
+    </action>
+  </actions>
+
+</idea-plugin>
