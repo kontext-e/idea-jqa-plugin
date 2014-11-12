@@ -56,7 +56,7 @@ public class ToolWindowPanelBuilder {
         button1 = new JButton();
         button1.setLabel("Find");
         button1.setText("Find");
-        button1.addActionListener(new QueryToolWindow.MyFindAction(matchNCLASSReturnTextArea, tmpStoreTextField, project));
+        button1.addActionListener(new FindInNeo4jDatabaseAction(matchNCLASSReturnTextArea, tmpStoreTextField, project));
 
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
