@@ -40,9 +40,6 @@
 
   <actions>
     <!-- Add your actions here -->
-    <action id="jqaQueries" class="de.kontext_e.idea.plugins.jqa.JqaQueryAction" text="Find with jQA" description="Execute a Cypher query to find code">
-      <add-to-group group-id="FindMenuGroup" anchor="after" relative-to-action="StructuralSearchPlugin.StructuralReplaceAction"/>
-    </action>
   </actions>
 
 </idea-plugin>
