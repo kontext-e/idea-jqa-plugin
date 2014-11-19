@@ -35,7 +35,7 @@ import com.intellij.usages.UsageTarget;
 import com.intellij.usages.UsageViewManager;
 import com.intellij.usages.UsageViewPresentation;
 
-import static com.intellij.notification.NotificationType.INFORMATION;
+import static com.intellij.notification.NotificationType.ERROR;
 
 class FindInNeo4jDatabaseAction extends AbstractAction {
     public static final Label LABEL_CLASS = new Label() {
@@ -97,8 +97,8 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
             tx.success();
 
         } catch (Exception e) {
-            String message = "Could not open Neo4j database at path "+ path;
-            showInfoBubble(message);
+            String message = "Exception occured for database with path "+path+":  "+ e.toString();
+            showErrorBubble(message);
         } finally {
             if(graphDb != null) {
                 graphDb.shutdown();
@@ -128,8 +128,8 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
         }
     }
 
-    private void showInfoBubble(final String message) {
-        NotificationType notificationType = INFORMATION;
+    private void showErrorBubble(final String message) {
+        NotificationType notificationType = ERROR;
         Notification notification = new Notification("", "", message, notificationType);
         ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);
     }
