@@ -19,10 +19,16 @@ import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.helpers.collection.IteratorUtil;
 
 import com.intellij.find.findUsages.PsiElement2UsageTargetAdapter;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFileSystemItem;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.usageView.UsageInfo;
 import com.intellij.usages.Usage;
 import com.intellij.usages.UsageInfo2UsageAdapter;
@@ -30,8 +36,8 @@ import com.intellij.usages.UsageTarget;
 import com.intellij.usages.UsageView;
 import com.intellij.usages.UsageViewManager;
 import com.intellij.usages.UsageViewPresentation;
-import liveplugin.PluginUtil;
 
+import static com.intellij.notification.NotificationType.INFORMATION;
 import static liveplugin.PluginUtil.show;
 
 class FindInNeo4jDatabaseAction extends AbstractAction {
@@ -50,26 +56,16 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
     }
 
     Usage[] resolvePsiElements(List<String> usagesList) {
-        java.util.List<PsiJavaFile> resolvedPsiElements = new ArrayList<PsiJavaFile>(usagesList.size());
-        Iterator<PsiFileSystemItem> psiFileSystemItemIterator = PluginUtil.allPsiItemsIn(myProject);
-        while (psiFileSystemItemIterator.hasNext()) {
-            PsiFileSystemItem psiItem = psiFileSystemItemIterator.next();
-            if (!(psiItem instanceof PsiJavaFile)) continue;
-
-            PsiJavaFile psiJavaFile = (PsiJavaFile) psiItem;
-            String fileName = psiJavaFile.getName();
-            fileName = fileName.substring(0, fileName.length() - 5);
-            String fqn = psiJavaFile.getPackageName() + "." + fileName;
-            if (usagesList.contains(fqn)) {
-                resolvedPsiElements.add(psiJavaFile);
+        List<Usage> usages = new ArrayList<Usage>(usagesList.size());
+        for (String classFqn : usagesList) {
+            PsiClass psiClass = JavaPsiFacade.getInstance(myProject).findClass(classFqn, GlobalSearchScope.projectScope(myProject));
+            if(psiClass.getContainingFile() instanceof PsiJavaFile) {
+                PsiJavaFile psiJavaFile = (PsiJavaFile) psiClass.getContainingFile();
+                UsageInfo info = new UsageInfo(psiJavaFile, psiJavaFile.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset(), psiJavaFile.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset());
+                usages.add(new UsageInfo2UsageAdapter(info));
             }
         }
 
-        List<Usage> usages = new ArrayList<Usage>(usagesList.size());
-        for (PsiJavaFile psiElement : resolvedPsiElements) {
-            UsageInfo info = new UsageInfo(psiElement, psiElement.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset(), psiElement.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset());
-            usages.add(new UsageInfo2UsageAdapter(info));
-        }
 
         return usages.toArray(new Usage[usages.size()]);
     }
@@ -82,7 +78,11 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
                     .setConfig(GraphDatabaseSettings.read_only, "true")
                     .newGraphDatabase();
         } catch (Exception e) {
-            show("Could not open Neo4j database at "+path);
+            String message = "Could not open Neo4j database at "+path;
+            NotificationType notificationType = INFORMATION;
+            Notification notification = new Notification("", "", message, notificationType);
+            ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);
+
             return Collections.emptyList();
         }
 
