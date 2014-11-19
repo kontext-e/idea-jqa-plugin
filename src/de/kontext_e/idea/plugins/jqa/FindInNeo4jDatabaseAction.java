@@ -2,7 +2,6 @@ package de.kontext_e.idea.plugins.jqa;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.AbstractAction;
@@ -33,17 +32,21 @@ import com.intellij.usageView.UsageInfo;
 import com.intellij.usages.Usage;
 import com.intellij.usages.UsageInfo2UsageAdapter;
 import com.intellij.usages.UsageTarget;
-import com.intellij.usages.UsageView;
 import com.intellij.usages.UsageViewManager;
 import com.intellij.usages.UsageViewPresentation;
 
 import static com.intellij.notification.NotificationType.INFORMATION;
-import static liveplugin.PluginUtil.show;
 
 class FindInNeo4jDatabaseAction extends AbstractAction {
+    public static final Label LABEL_CLASS = new Label() {
+        @Override
+        public String name() {
+            return "Class";
+        }
+    };
     private Project myProject;
-    JTextArea textArea;
-    JTextField neo4jPath;
+    private JTextArea textArea;
+    private JTextField neo4jPath;
 
     public FindInNeo4jDatabaseAction(JTextArea textArea, JTextField neo4jPath, final Project project) {
         this.textArea = textArea;
@@ -52,11 +55,20 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        openFindTool(resolvePsiElements(queryNeo4j()));
+        String databasePath = myProject.getBasePath() + "/" + neo4jPath.getText();
+        openFindTool(resolvePsiElements(queryNeo4j(databasePath, textArea.getText())));
+    }
+
+    void openFindTool(Usage[] theUsages) {
+        UsageTarget[] usageTargets = new UsageTarget[] {
+                new PsiElement2UsageTargetAdapter(PsiManager.getInstance(myProject).findDirectory(myProject.getBaseDir()))
+        };
+
+        UsageViewManager.getInstance(myProject).showUsages(usageTargets, theUsages, createPresentation());
     }
 
     Usage[] resolvePsiElements(List<String> usagesList) {
-        List<Usage> usages = new ArrayList<Usage>(usagesList.size());
+        List<Usage> usages = new ArrayList<>(usagesList.size());
         for (String classFqn : usagesList) {
             PsiClass psiClass = JavaPsiFacade.getInstance(myProject).findClass(classFqn, GlobalSearchScope.projectScope(myProject));
             if(psiClass.getContainingFile() instanceof PsiJavaFile) {
@@ -70,62 +82,56 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
         return usages.toArray(new Usage[usages.size()]);
     }
 
-    List<String> queryNeo4j() {
+    List<String> queryNeo4j(final String path, final String queryString) {
         GraphDatabaseService graphDb = null;
-        String path = myProject.getBasePath() + "/" + neo4jPath.getText();
+        List<String> usages = new ArrayList<>();
         try {
             graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path)
                     .setConfig(GraphDatabaseSettings.read_only, "true")
                     .newGraphDatabase();
-        } catch (Exception e) {
-            String message = "Could not open Neo4j database at "+path;
-            NotificationType notificationType = INFORMATION;
-            Notification notification = new Notification("", "", message, notificationType);
-            ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);
 
-            return Collections.emptyList();
-        }
-
-        List<String> usages = new ArrayList<String>();
-        try {
             Transaction tx = graphDb.beginTx();
             ExecutionEngine engine = new ExecutionEngine(graphDb);
-            ExecutionResult result = engine.execute(textArea.getText());
-            try {
-                Iterator<Node> n_column = result.columnAs("n");
-                for (Node node : IteratorUtil.asIterable(n_column)) {
-                    try {
-                        if(node.hasLabel(new Label() {
-                            @Override
-                            public String name() {
-                                return "Class";
-                            }
-                        })) {
-                            usages.add((String) node.getProperty("fqn"));
-                        }
-                    } catch(org.neo4j.graphdb.NotFoundException e) {
-                    }
-                }
-            } catch(org.neo4j.cypher.EntityNotFoundException e1) {
-                show("No column named 'n' found; you should return a node with label 'CLASS' and name 'n', e.g. match (c:CLASS) return c LIMIT 10");
-            }
-
+            ExecutionResult result = engine.execute(queryString);
+            readFqnsFromResult(usages, result);
             tx.success();
+
+        } catch (Exception e) {
+            String message = "Could not open Neo4j database at path "+ path;
+            showInfoBubble(message);
         } finally {
-            graphDb.shutdown();
+            if(graphDb != null) {
+                graphDb.shutdown();
+            }
         }
 
         return usages;
     }
 
-    void openFindTool(Usage[] theUsages) {
-        // may help: https://gist.github.com/dkandalov/7248184
-        // custom search adapter. https://gist.github.com/dkandalov/5956923
-        UsageTarget[] usageTargets = new UsageTarget[1];
-        usageTargets[0] =
-                new PsiElement2UsageTargetAdapter(PsiManager.getInstance(myProject).findDirectory(myProject.getBaseDir()));
+    private void readFqnsFromResult(final List<String> fqns, final ExecutionResult result) {
+        List<String> columnNames = result.columns();
+        for (String columnName : columnNames) {
+            Iterator<Node> column = result.columnAs(columnName);
+            for (Node node : IteratorUtil.asIterable(column)) {
+                ifNodeIsClassReadFqnProperty(fqns, node);
+            }
+        }
+    }
 
-        final UsageView view = UsageViewManager.getInstance(myProject).showUsages(usageTargets, theUsages, createPresentation());
+    private void ifNodeIsClassReadFqnProperty(final List<String> fqns, final Node node) {
+        try {
+            if(node.hasLabel(LABEL_CLASS)) {
+                fqns.add((String) node.getProperty("fqn"));
+            }
+        } catch(Exception e) {
+            // TODO find out how to write a message into messages tool window
+        }
+    }
+
+    private void showInfoBubble(final String message) {
+        NotificationType notificationType = INFORMATION;
+        Notification notification = new Notification("", "", message, notificationType);
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);
     }
 
     private UsageViewPresentation createPresentation() {
