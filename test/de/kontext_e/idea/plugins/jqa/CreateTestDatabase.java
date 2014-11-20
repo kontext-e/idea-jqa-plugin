@@ -23,6 +23,13 @@ public class CreateTestDatabase {
                 Node myNode = graphDb.createNode();
                 myNode.addLabel(FindInNeo4jDatabaseAction.LABEL_CLASS);
                 myNode.setProperty( "fqn", CreateTestDatabase.class.getName() );
+
+                Node methodNode = graphDb.createNode();
+                methodNode.addLabel(FindInNeo4jDatabaseAction.LABEL_METHOD);
+                methodNode.setProperty("signature", CreateTestDatabase.class.getName() + " createTestDatabase()");
+                methodNode.setProperty("name", "createTestDatabase");
+                methodNode.setProperty("visibility", "public");
+                methodNode.setProperty("static", "true");
                 tx.success();
             }
         } catch (Exception e) {

@@ -28,8 +28,8 @@ public class FindInNeo4jDatabaseActionIT {
     }
 
     @Test
-    public void queryNeo4j() throws Exception {
-        List<String> fqns = findInNeo4jDatabaseAction.queryNeo4j("jqassistant/store", "match (n) return n");
+    public void queryNeo4jForClasses() throws Exception {
+        List<String> fqns = findInNeo4jDatabaseAction.queryNeo4j("jqassistant/store", "match (n:Class) return n");
 
         assertThat(fqns.size(), Matchers.is(1));
     }

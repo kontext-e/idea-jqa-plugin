@@ -44,6 +44,13 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
             return "Class";
         }
     };
+    public static final Label LABEL_METHOD = new Label() {
+        @Override
+        public String name() {
+            return "Method";
+        }
+    };
+
     private Project myProject;
     private JTextArea textArea;
     private JTextField neo4jPath;
@@ -119,6 +126,10 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
     }
 
     private void ifNodeIsClassReadFqnProperty(final List<String> fqns, final Node node) {
+        if(JqaMethod.isResponsibleFor(node)) {
+            JqaMethod m = new JqaMethod(node);
+        }
+
         try {
             if(node.hasLabel(LABEL_CLASS)) {
                 fqns.add((String) node.getProperty("fqn"));
