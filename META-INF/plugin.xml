@@ -1,16 +1,39 @@
 <idea-plugin version="2">
   <id>de.kontext_e.idea.plugins.jqa</id>
   <name>jQAssistant Plugin</name>
-  <version>0.1</version>
+  <version>1.0</version>
   <vendor email="j.nerche@kontext-e.de" url="http://www.kontext-e.de">Kontext E GmbH</vendor>
 
   <description><![CDATA[
-      Execute queries against an existing jQAssistant database and show results in the Find Toolwindow.<br>
+<h1>What is it?</h1>
+      Execute queries against an existing jQAssistant database and show results in the Find Toolwindow.
       So you can search for code using Neo4J Cypher database queries.
+
+<h1>Usage</h1>
+This plugin doesn't create the jQAssistant database. So you should get a copy
+from <a href="http://jqassistant.org">jqassistant.org</a>, configure and run it following the jQAssistant documentation.
+
+When you have created your database, you can open the jQA toolwindow. The database
+location has the default value where most probably the database files should reside.
+Take the example query or enter your own and hit the 'Find' button gently. The result
+is shown in the standard Find toolwindow and you can use it to navigate as you know it.
+
+<h1>What can you find?</h1>
+You can find classes, methods and files where
+
+<ul>
+<li> * nodes have a 'fqn' property that contains the fully qualified name of a class in project scope,
+ e.g. nodes with Class, CheckstyleFile, BugInstanceClass (of FindBugs plugin), JacocoClass lables</li>
+
+<li> * node have a 'Method' label,</li>
+
+<li> * nodes have a 'relativePath' property that contains the path of a file relative to the project root,
+ e.g. with GitFile, GitCommitFile labels</li>
+</ul>
     ]]></description>
 
   <change-notes><![CDATA[
-      Initial spike.<br>
+      Initial version.<br>
     ]]>
   </change-notes>
 
