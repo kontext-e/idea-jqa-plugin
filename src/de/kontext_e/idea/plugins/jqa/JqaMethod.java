@@ -2,7 +2,7 @@ package de.kontext_e.idea.plugins.jqa;
 
 import org.neo4j.graphdb.Node;
 
-public class JqaMethod {
+public class JqaMethod implements JqaClassFqnResult {
 
     private String signature;
     private String name;
@@ -16,6 +16,11 @@ public class JqaMethod {
         visibility = (String) node.getProperty("visibility");
         isStatic = (String) node.getProperty("static");
         classFqn = classFqnOfMethod(signature);
+    }
+
+    @Override
+    public String getClassFqn() {
+        return classFqn;
     }
 
     public static boolean isResponsibleFor(final Node node) {

@@ -74,10 +74,10 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
         UsageViewManager.getInstance(myProject).showUsages(usageTargets, theUsages, createPresentation());
     }
 
-    Usage[] resolvePsiElements(List<String> usagesList) {
+    Usage[] resolvePsiElements(List<JqaClassFqnResult> usagesList) {
         List<Usage> usages = new ArrayList<>(usagesList.size());
-        for (String classFqn : usagesList) {
-            PsiClass psiClass = JavaPsiFacade.getInstance(myProject).findClass(classFqn, GlobalSearchScope.projectScope(myProject));
+        for (JqaClassFqnResult classFqnResult : usagesList) {
+            PsiClass psiClass = JavaPsiFacade.getInstance(myProject).findClass(classFqnResult.getClassFqn(), GlobalSearchScope.projectScope(myProject));
             if(psiClass.getContainingFile() instanceof PsiJavaFile) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiClass.getContainingFile();
                 int classNameStartOffset = psiJavaFile.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset();
@@ -90,9 +90,9 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
         return usages.toArray(new Usage[usages.size()]);
     }
 
-    List<String> queryNeo4j(final String path, final String queryString) {
+    List<JqaClassFqnResult> queryNeo4j(final String path, final String queryString) {
         GraphDatabaseService graphDb = null;
-        List<String> usages = new ArrayList<>();
+        final List<JqaClassFqnResult> jqaResults = new ArrayList<>();
         try {
             graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path)
                     .setConfig(GraphDatabaseSettings.read_only, "true")
@@ -101,7 +101,7 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
             Transaction tx = graphDb.beginTx();
             ExecutionEngine engine = new ExecutionEngine(graphDb);
             ExecutionResult result = engine.execute(queryString);
-            readFqnsFromResult(usages, result);
+            readFqnsFromResult(result, jqaResults);
             tx.success();
 
         } catch (Exception e) {
@@ -113,27 +113,27 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
             }
         }
 
-        return usages;
+        return jqaResults;
     }
 
-    private void readFqnsFromResult(final List<String> fqns, final ExecutionResult result) {
+    private void readFqnsFromResult(final ExecutionResult result, final List<JqaClassFqnResult> jqaResults) {
         List<String> columnNames = result.columns();
         for (String columnName : columnNames) {
             Iterator<Node> column = result.columnAs(columnName);
             for (Node node : IteratorUtil.asIterable(column)) {
-                ifNodeIsClassReadFqnProperty(fqns, node);
+                ifNodeIsClassReadFqnProperty(node, jqaResults);
             }
         }
     }
 
-    private void ifNodeIsClassReadFqnProperty(final List<String> fqns, final Node node) {
-        if(JqaMethod.isResponsibleFor(node)) {
-            JqaMethod m = new JqaMethod(node);
-        }
-
+    private void ifNodeIsClassReadFqnProperty(final Node node, final List<JqaClassFqnResult> jqaResults) {
         try {
-            if(node.hasLabel(LABEL_CLASS)) {
-                fqns.add((String) node.getProperty("fqn"));
+            if(JqaMethod.isResponsibleFor(node)) {
+                jqaResults.add(new JqaMethod(node));
+            }
+
+            if(JqaClass.isResponsibleFor(node)) {
+                jqaResults.add(new JqaClass(node));
             }
         } catch(Exception e) {
             // TODO find out how to write a message into messages tool window
