@@ -42,4 +42,13 @@ public class FindInNeo4jDatabaseActionIT {
         assertThat(fqns.get(0).getClassFqn(), is(CreateTestDatabase.class.getName()));
     }
 
+    @Test
+    public void queryNeo4jForClassesAndMethods() throws Exception {
+        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("jqassistant/store", "match (n:Class), (m:Method) return n,m LIMIT 10");
+
+        assertThat(fqns.size(), is(2));
+        assertThat(fqns.get(0).getClassFqn(), is(CreateTestDatabase.class.getName()));
+        assertThat(fqns.get(1).getClassFqn(), is(CreateTestDatabase.class.getName()));
+    }
+
 }

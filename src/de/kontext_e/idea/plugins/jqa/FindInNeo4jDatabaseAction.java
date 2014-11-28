@@ -2,8 +2,8 @@ package de.kontext_e.idea.plugins.jqa;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -15,7 +15,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.helpers.collection.IteratorUtil;
 
 import com.intellij.find.findUsages.PsiElement2UsageTargetAdapter;
 import com.intellij.notification.Notification;
@@ -117,11 +116,15 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
     }
 
     private void readFqnsFromResult(final ExecutionResult result, final List<JqaClassFqnResult> jqaResults) {
-        List<String> columnNames = result.columns();
-        for (String columnName : columnNames) {
-            Iterator<Node> column = result.columnAs(columnName);
-            for (Node node : IteratorUtil.asIterable(column)) {
-                ifNodeIsClassReadFqnProperty(node, jqaResults);
+        for ( Map<String, Object> row : result )
+        {
+            for ( Map.Entry<String, Object> column : row.entrySet() )
+            {
+                Object columnValue = column.getValue();
+                if(columnValue instanceof Node) {
+                    Node node = (Node) columnValue;
+                    ifNodeIsClassReadFqnProperty(node, jqaResults);
+                }
             }
         }
     }
