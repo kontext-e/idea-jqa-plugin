@@ -10,7 +10,6 @@ import javax.swing.JTextField;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -37,18 +36,6 @@ import com.intellij.usages.UsageViewPresentation;
 import static com.intellij.notification.NotificationType.ERROR;
 
 class FindInNeo4jDatabaseAction extends AbstractAction {
-    public static final Label LABEL_CLASS = new Label() {
-        @Override
-        public String name() {
-            return "Class";
-        }
-    };
-    public static final Label LABEL_METHOD = new Label() {
-        @Override
-        public String name() {
-            return "Method";
-        }
-    };
 
     private Project myProject;
     private JTextArea textArea;

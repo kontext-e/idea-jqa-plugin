@@ -21,11 +21,11 @@ public class CreateTestDatabase {
                 engine.execute("START n = node(*) OPTIONAL MATCH n-[r]-() DELETE n, r");
 
                 Node myNode = graphDb.createNode();
-                myNode.addLabel(FindInNeo4jDatabaseAction.LABEL_CLASS);
+                myNode.addLabel(JqaClass.LABEL_CLASS);
                 myNode.setProperty( "fqn", CreateTestDatabase.class.getName() );
 
                 Node methodNode = graphDb.createNode();
-                methodNode.addLabel(FindInNeo4jDatabaseAction.LABEL_METHOD);
+                methodNode.addLabel(JqaMethod.LABEL_METHOD);
                 methodNode.setProperty("signature", CreateTestDatabase.class.getName() + " createTestDatabase()");
                 methodNode.setProperty("name", "createTestDatabase");
                 methodNode.setProperty("visibility", "public");

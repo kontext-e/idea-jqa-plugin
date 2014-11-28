@@ -1,11 +1,18 @@
 package de.kontext_e.idea.plugins.jqa;
 
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
 import com.intellij.psi.PsiJavaFile;
 
 public class JqaClass implements JqaClassFqnResult {
 
+    public static final Label LABEL_CLASS = new Label() {
+        @Override
+        public String name() {
+            return "Class";
+        }
+    };
     private String fqn;
 
     public JqaClass(final Node node) {
@@ -23,6 +30,6 @@ public class JqaClass implements JqaClassFqnResult {
     }
 
     public static boolean isResponsibleFor(final Node node) {
-        return node.hasLabel(FindInNeo4jDatabaseAction.LABEL_CLASS);
+        return node.hasProperty("fqn");
     }
 }
