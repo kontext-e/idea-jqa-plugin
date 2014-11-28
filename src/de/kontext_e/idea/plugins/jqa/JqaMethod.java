@@ -4,8 +4,10 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.usageView.UsageInfo;
 
 public class JqaMethod implements JqaClassFqnResult {
@@ -30,28 +32,28 @@ public class JqaMethod implements JqaClassFqnResult {
         classFqn = classFqnOfMethod(signature);
     }
 
-    @Override
     public String getClassFqn() {
         return classFqn;
     }
 
-    @Override
-    public int calculateOffset(final PsiJavaFile psiJavaFile) {
-        PsiMethod[] allMethods = psiJavaFile.getClasses()[0].getAllMethods();
+    public int calculateOffset(final PsiClass psiClass) {
+        PsiMethod[] allMethods = psiClass.getMethods();
         for (PsiMethod psiMethod : allMethods) {
             // todo: look for signature, not only name
             if(psiMethod.getName().equals(name)) {
-                return psiMethod.getNameIdentifier().getTextOffset();
+                return psiMethod.getNameIdentifier().getTextRange().getStartOffset();
             }
         }
 
         // Fallback: jump to class name
-        return psiJavaFile.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset();
+        return psiClass.getNameIdentifier().getTextRange().getStartOffset();
     }
 
     @Override
     public UsageInfo toUsageInfo(final Project project) {
-        return null;
+        PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(classFqn, GlobalSearchScope.projectScope(project));
+        int classNameStartOffset = calculateOffset(psiClass);
+        return new UsageInfo(psiClass.getContainingFile(), classNameStartOffset, classNameStartOffset);
     }
 
     public static boolean isResponsibleFor(final Node node) {

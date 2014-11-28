@@ -39,7 +39,7 @@ public class FindInNeo4jDatabaseActionIT {
         List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("jqassistant/store", "match (n:Method) return n");
 
         assertThat(fqns.size(), is(1));
-        assertThat(fqns.get(0).getClassFqn(), is(CreateTestDatabase.class.getName()));
+        assertThat(((JqaMethod)fqns.get(0)).getClassFqn(), is(CreateTestDatabase.class.getName()));
     }
 
     @Test
@@ -47,8 +47,8 @@ public class FindInNeo4jDatabaseActionIT {
         List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("jqassistant/store", "match (n:Class), (m:Method) return n,m LIMIT 10");
 
         assertThat(fqns.size(), is(2));
-        assertThat(fqns.get(0).getClassFqn(), is(CreateTestDatabase.class.getName()));
-        assertThat(fqns.get(1).getClassFqn(), is(CreateTestDatabase.class.getName()));
+        assertThat(((JqaClass)fqns.get(0)).getClassFqn(), is(CreateTestDatabase.class.getName()));
+        assertThat(((JqaMethod)fqns.get(1)).getClassFqn(), is(CreateTestDatabase.class.getName()));
     }
 
 }

@@ -4,7 +4,9 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.usageView.UsageInfo;
 
 public class JqaClass implements JqaClassFqnResult {
@@ -21,19 +23,14 @@ public class JqaClass implements JqaClassFqnResult {
         this.fqn = (String) node.getProperty("fqn");
     }
 
-    @Override
     public String getClassFqn() {
         return fqn;
     }
 
     @Override
-    public int calculateOffset(final PsiJavaFile psiJavaFile) {
-        return psiJavaFile.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset();
-    }
-
-    @Override
     public UsageInfo toUsageInfo(final Project project) {
-        return null;
+        PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.projectScope(project));
+        return new UsageInfo(psiClass, psiClass.getNameIdentifier().getStartOffsetInParent(), psiClass.getNameIdentifier().getStartOffsetInParent());
     }
 
     public static boolean isResponsibleFor(final Node node) {

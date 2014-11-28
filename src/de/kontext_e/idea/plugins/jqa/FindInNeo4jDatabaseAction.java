@@ -21,11 +21,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.usageView.UsageInfo;
 import com.intellij.usages.Usage;
 import com.intellij.usages.UsageInfo2UsageAdapter;
@@ -63,16 +59,8 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
     Usage[] resolvePsiElements(List<JqaClassFqnResult> usagesList) {
         List<Usage> usages = new ArrayList<>(usagesList.size());
         for (JqaClassFqnResult classFqnResult : usagesList) {
-            PsiClass psiClass = JavaPsiFacade.getInstance(myProject).findClass(classFqnResult.getClassFqn(), GlobalSearchScope.projectScope(myProject));
-            if(psiClass.getContainingFile() instanceof PsiJavaFile) {
-                PsiJavaFile psiJavaFile = (PsiJavaFile) psiClass.getContainingFile();
-                int classNameStartOffset = classFqnResult.calculateOffset(psiJavaFile);
-                UsageInfo info = new UsageInfo(psiJavaFile, classNameStartOffset, classNameStartOffset);
-                usages.add(new UsageInfo2UsageAdapter(info));
-            } else {
-                UsageInfo info = classFqnResult.toUsageInfo(myProject);
-                usages.add(new UsageInfo2UsageAdapter(info));
-            }
+            UsageInfo info = classFqnResult.toUsageInfo(myProject);
+            usages.add(new UsageInfo2UsageAdapter(info));
         }
 
 
