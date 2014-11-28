@@ -69,6 +69,9 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
                 int classNameStartOffset = classFqnResult.calculateOffset(psiJavaFile);
                 UsageInfo info = new UsageInfo(psiJavaFile, classNameStartOffset, classNameStartOffset);
                 usages.add(new UsageInfo2UsageAdapter(info));
+            } else {
+                UsageInfo info = classFqnResult.toUsageInfo(myProject);
+                usages.add(new UsageInfo2UsageAdapter(info));
             }
         }
 
@@ -125,12 +128,18 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
             if(JqaClass.isResponsibleFor(node)) {
                 jqaResults.add(new JqaClass(node));
             }
+
+            if(JqaRelativePathFile.isResponsibleFor(node)) {
+                jqaResults.add(new JqaRelativePathFile(node));
+            }
+
+
         } catch(Exception e) {
             // TODO find out how to write a message into messages tool window
         }
     }
 
-    private void showErrorBubble(final String message) {
+    public static void showErrorBubble(final String message) {
         NotificationType notificationType = ERROR;
         Notification notification = new Notification("", "", message, notificationType);
         ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);

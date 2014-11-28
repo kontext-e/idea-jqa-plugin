@@ -3,8 +3,10 @@ package de.kontext_e.idea.plugins.jqa;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
+import com.intellij.usageView.UsageInfo;
 
 public class JqaMethod implements JqaClassFqnResult {
 
@@ -45,6 +47,11 @@ public class JqaMethod implements JqaClassFqnResult {
 
         // Fallback: jump to class name
         return psiJavaFile.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset();
+    }
+
+    @Override
+    public UsageInfo toUsageInfo(final Project project) {
+        return null;
     }
 
     public static boolean isResponsibleFor(final Node node) {

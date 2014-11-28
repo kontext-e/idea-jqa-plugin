@@ -3,7 +3,9 @@ package de.kontext_e.idea.plugins.jqa;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiJavaFile;
+import com.intellij.usageView.UsageInfo;
 
 public class JqaClass implements JqaClassFqnResult {
 
@@ -27,6 +29,11 @@ public class JqaClass implements JqaClassFqnResult {
     @Override
     public int calculateOffset(final PsiJavaFile psiJavaFile) {
         return psiJavaFile.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset();
+    }
+
+    @Override
+    public UsageInfo toUsageInfo(final Project project) {
+        return null;
     }
 
     public static boolean isResponsibleFor(final Node node) {
