@@ -80,7 +80,7 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
             PsiClass psiClass = JavaPsiFacade.getInstance(myProject).findClass(classFqnResult.getClassFqn(), GlobalSearchScope.projectScope(myProject));
             if(psiClass.getContainingFile() instanceof PsiJavaFile) {
                 PsiJavaFile psiJavaFile = (PsiJavaFile) psiClass.getContainingFile();
-                int classNameStartOffset = psiJavaFile.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset();
+                int classNameStartOffset = classFqnResult.calculateOffset(psiJavaFile);
                 UsageInfo info = new UsageInfo(psiJavaFile, classNameStartOffset, classNameStartOffset);
                 usages.add(new UsageInfo2UsageAdapter(info));
             }

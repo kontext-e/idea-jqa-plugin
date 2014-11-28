@@ -2,6 +2,9 @@ package de.kontext_e.idea.plugins.jqa;
 
 import org.neo4j.graphdb.Node;
 
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiMethod;
+
 public class JqaMethod implements JqaClassFqnResult {
 
     private String signature;
@@ -21,6 +24,20 @@ public class JqaMethod implements JqaClassFqnResult {
     @Override
     public String getClassFqn() {
         return classFqn;
+    }
+
+    @Override
+    public int calculateOffset(final PsiJavaFile psiJavaFile) {
+        PsiMethod[] allMethods = psiJavaFile.getClasses()[0].getAllMethods();
+        for (PsiMethod psiMethod : allMethods) {
+            // todo: look for signature, not only name
+            if(psiMethod.getName().equals(name)) {
+                return psiMethod.getNameIdentifier().getTextOffset();
+            }
+        }
+
+        // Fallback: jump to class name
+        return psiJavaFile.getClasses()[0].getNameIdentifier().getTextRange().getStartOffset();
     }
 
     public static boolean isResponsibleFor(final Node node) {
