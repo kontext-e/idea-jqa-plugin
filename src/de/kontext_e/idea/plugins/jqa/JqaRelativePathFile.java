@@ -17,6 +17,7 @@ public class JqaRelativePathFile implements JqaClassFqnResult {
     @Override
     public UsageInfo toUsageInfo(final Project project) {
         VirtualFile virtualFile = project.getBaseDir().findFileByRelativePath(relativePath);
+        if(virtualFile == null) return null;
         PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
         return new UsageInfo(psiFile, 0, 0);
     }

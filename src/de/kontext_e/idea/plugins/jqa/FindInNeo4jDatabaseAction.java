@@ -60,9 +60,10 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
         List<Usage> usages = new ArrayList<>(usagesList.size());
         for (JqaClassFqnResult classFqnResult : usagesList) {
             UsageInfo info = classFqnResult.toUsageInfo(myProject);
-            usages.add(new UsageInfo2UsageAdapter(info));
+            if(info != null) {
+                usages.add(new UsageInfo2UsageAdapter(info));
+            }
         }
-
 
         return usages.toArray(new Usage[usages.size()]);
     }
