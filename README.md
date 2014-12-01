@@ -1,13 +1,7 @@
 Installation
 ============
-It's quite easy:
-* clone me
-* open the IntelliJ project
-* use menu Build/Prepare Plugin Module ... For Deployment
-* open the Settings dialog
-* choose Plugins
-* use "Install plugin from disk"
-
+It's quite easy: go to JetBrains' Plugin repository and look for jQAssistant Plugin.
+Install it like any other plugin. You will find a new toolwindow called "Find using jQA DB".
 
 Usage
 =====
