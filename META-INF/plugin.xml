@@ -1,10 +1,15 @@
 <idea-plugin version="2">
   <id>de.kontext_e.idea.plugins.jqa</id>
   <name>jQAssistant Plugin</name>
-  <version>1.0</version>
+  <version>1.1</version>
   <vendor email="j.nerche@kontext-e.de" url="http://www.kontext-e.de">Kontext E GmbH</vendor>
 
   <description><![CDATA[
+<h1>New in version 1.1</h1>
+<ul>
+    <li>Update to Neo4j 2.2.0</li>
+</ul>
+
 <h1>What is it?</h1>
       Execute queries against an existing jQAssistant database and show results in the Find Toolwindow.
       So you can search for code using Neo4J Cypher database queries.
@@ -12,6 +17,9 @@
 <h1>Usage</h1>
 This plugin doesn't create the jQAssistant database. So you should get a copy
 from <a href="http://jqassistant.org">jqassistant.org</a>, configure and run it following the jQAssistant documentation.
+
+You can also use the jQAssistant plugins provided by Kontext E available at
+<a href="http://search.maven.org/#search|ga|1|de.kontext-e.jqassistant.plugin">maven central</a>.
 
 When you have created your database, you can open the jQA toolwindow. The database
 location has the default value where most probably the database files should reside.
