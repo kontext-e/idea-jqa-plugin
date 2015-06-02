@@ -74,6 +74,7 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
         try {
             graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path)
                     .setConfig(GraphDatabaseSettings.read_only, "true")
+                    .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
                     .newGraphDatabase();
 
             Transaction tx = graphDb.beginTx();
@@ -84,7 +85,7 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
 
         } catch (Exception e) {
             String message = "Exception occured for database with path "+path+":  "+ e.toString();
-            showErrorBubble(message);
+//            showErrorBubble(message);
         } finally {
             if(graphDb != null) {
                 graphDb.shutdown();
