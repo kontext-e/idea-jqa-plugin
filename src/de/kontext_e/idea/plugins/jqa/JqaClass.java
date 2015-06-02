@@ -30,6 +30,7 @@ public class JqaClass implements JqaClassFqnResult {
     @Override
     public UsageInfo toUsageInfo(final Project project) {
         PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.projectScope(project));
+        if(psiClass == null) return null;
         return new UsageInfo(psiClass, psiClass.getNameIdentifier().getStartOffsetInParent(), psiClass.getNameIdentifier().getStartOffsetInParent());
     }
 
