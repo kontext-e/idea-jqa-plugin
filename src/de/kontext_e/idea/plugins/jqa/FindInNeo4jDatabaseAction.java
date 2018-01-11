@@ -49,23 +49,34 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
     }
 
     void openFindTool(Usage[] theUsages) {
-        UsageTarget[] usageTargets = new UsageTarget[] {
-                new PsiElement2UsageTargetAdapter(PsiManager.getInstance(myProject).findDirectory(myProject.getBaseDir()))
-        };
+        try {
+            UsageTarget[] usageTargets = new UsageTarget[] {
+                    new PsiElement2UsageTargetAdapter(PsiManager.getInstance(myProject).findDirectory(myProject.getBaseDir()))
+            };
 
-        UsageViewManager.getInstance(myProject).showUsages(usageTargets, theUsages, createPresentation());
+            UsageViewManager.getInstance(myProject).showUsages(usageTargets, theUsages, createPresentation());
+        } catch (Exception e) {
+            String message = "Exception occured on opening Find Tool Window: "+ e;
+            showErrorBubble(message);
+        }
     }
 
     Usage[] resolvePsiElements(List<JqaClassFqnResult> usagesList) {
-        List<Usage> usages = new ArrayList<>(usagesList.size());
-        for (JqaClassFqnResult classFqnResult : usagesList) {
-            UsageInfo info = classFqnResult.toUsageInfo(myProject);
-            if(info != null) {
-                usages.add(new UsageInfo2UsageAdapter(info));
+        try {
+            List<Usage> usages = new ArrayList<>(usagesList.size());
+            for (JqaClassFqnResult classFqnResult : usagesList) {
+                UsageInfo info = classFqnResult.toUsageInfo(myProject);
+                if(info != null) {
+                    usages.add(new UsageInfo2UsageAdapter(info));
+                }
             }
-        }
 
-        return usages.toArray(new Usage[usages.size()]);
+            return usages.toArray(new Usage[usages.size()]);
+        } catch (Exception e) {
+            String message = "Exception occured while resolving PSI elements: "+ e;
+            showErrorBubble(message);
+            return new Usage[0];
+        }
     }
 
     List<JqaClassFqnResult> queryNeo4j(final String path, final String queryString) {
@@ -85,7 +96,7 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
 
         } catch (Exception e) {
             String message = "Exception occured for database with path "+path+":  "+ e.toString();
-//            showErrorBubble(message);
+            showErrorBubble(message);
         } finally {
             if(graphDb != null) {
                 graphDb.shutdown();
