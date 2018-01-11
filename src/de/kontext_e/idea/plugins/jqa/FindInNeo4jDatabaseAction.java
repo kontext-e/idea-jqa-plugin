@@ -165,7 +165,6 @@ any hints welcome
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
             String message = "Exception occured for database with path "+path+":  "+ e.toString();
             showErrorBubble(message);
         }
