@@ -23,6 +23,10 @@ public class JqaClass implements JqaClassFqnResult {
         this.fqn = (String) node.getProperty("fqn");
     }
 
+    public JqaClass(final String fqn) {
+        this.fqn = fqn;
+    }
+
     public String getClassFqn() {
         return fqn;
     }

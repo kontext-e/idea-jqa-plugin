@@ -28,7 +28,7 @@ public class ToolWindowPanelBuilder {
         gbc.anchor = GridBagConstraints.WEST;
         panel1.add(label1, gbc);
         tmpStoreTextField = new JTextField();
-        tmpStoreTextField.setText("jqassistant/store");
+        tmpStoreTextField.setText("http://localhost:7474/db/data/");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;

@@ -2,19 +2,20 @@ package de.kontext_e.idea.plugins.jqa;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.cypher.javacompat.ExecutionResult;
-import org.neo4j.graphdb.GraphDatabaseService;
+import javax.ws.rs.core.MediaType;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.intellij.find.findUsages.PsiElement2UsageTargetAdapter;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -44,8 +45,7 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        String databasePath = myProject.getBasePath() + "/" + neo4jPath.getText();
-        openFindTool(resolvePsiElements(queryNeo4j(databasePath, textArea.getText())));
+        openFindTool(resolvePsiElements(queryNeo4j(neo4jPath.getText(), textArea.getText())));
     }
 
     void openFindTool(Usage[] theUsages) {
@@ -80,43 +80,69 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
     }
 
     List<JqaClassFqnResult> queryNeo4j(final String path, final String queryString) {
-        GraphDatabaseService graphDb = null;
         final List<JqaClassFqnResult> jqaResults = new ArrayList<>();
         try {
-            graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path)
-                    .setConfig(GraphDatabaseSettings.read_only, "true")
-                    .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
-                    .newGraphDatabase();
+            String serverUri = path;
+            if(!serverUri.endsWith("/")) serverUri += "/";
 
-            Transaction tx = graphDb.beginTx();
-            ExecutionEngine engine = new ExecutionEngine(graphDb);
-            ExecutionResult result = engine.execute(queryString);
-            readFqnsFromResult(result, jqaResults);
-            tx.success();
+            final String txUri = serverUri + "transaction/commit";
+            WebResource resource = Client.create().resource(txUri );
 
+            String payload = "{\"statements\" : [ {\"statement\" : \"" + queryString + "\"} ]}";
+            ClientResponse response = resource
+                    .accept(MediaType.APPLICATION_JSON )
+                    .type(MediaType.APPLICATION_JSON )
+                    .entity( payload )
+                    .post( ClientResponse.class );
+
+            final String responseEntity = response.getEntity(String.class);
+
+            final String message = String.format(
+                    "POST [%s] to [%s], status code [%d], returned data: "
+                    + System.lineSeparator() + "%s",
+                    payload, txUri, response.getStatus(),
+                    responseEntity);
+            showErrorBubble(message);
+            response.close();
+
+            /////////////////////////////
+
+            final JsonFactory jsonFactory = new JsonFactory();
+            jsonFactory.enable(JsonParser.Feature.ALLOW_COMMENTS);
+            jsonFactory.disable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
+            JsonParser p = jsonFactory.createParser(responseEntity);
+            p.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+
+            boolean isFqn = false;
+            final Collection<String> fqns = new ArrayList<>();
+            while(!p.isClosed()){
+                JsonToken jsonToken = p.nextToken();
+                if(jsonToken == JsonToken.FIELD_NAME) {
+                    final String value = p.getCurrentName();
+                    if("fqn".equalsIgnoreCase(value)) {
+                        isFqn = true;
+                    }
+                }
+                if(isFqn && jsonToken == JsonToken.VALUE_STRING) {
+                    fqns.add(p.getValueAsString());
+                    isFqn = false;
+                }
+            }
+            System.out.println("FQNs: "+fqns);
+
+            readFqnsFromResult(fqns, jqaResults);
         } catch (Exception e) {
             String message = "Exception occured for database with path "+path+":  "+ e.toString();
             showErrorBubble(message);
-        } finally {
-            if(graphDb != null) {
-                graphDb.shutdown();
-            }
         }
 
         return jqaResults;
     }
 
-    private void readFqnsFromResult(final ExecutionResult result, final List<JqaClassFqnResult> jqaResults) {
-        for ( Map<String, Object> row : result )
+    private void readFqnsFromResult(final Collection<String> result, final List<JqaClassFqnResult> jqaResults) {
+        for ( String row : result )
         {
-            for ( Map.Entry<String, Object> column : row.entrySet() )
-            {
-                Object columnValue = column.getValue();
-                if(columnValue instanceof Node) {
-                    Node node = (Node) columnValue;
-                    ifNodeIsClassReadFqnProperty(node, jqaResults);
-                }
-            }
+            jqaResults.add(new JqaClass(row));
         }
     }
 
@@ -133,8 +159,6 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
             if(JqaRelativePathFile.isResponsibleFor(node)) {
                 jqaResults.add(new JqaRelativePathFile(node));
             }
-
-
         } catch(Exception e) {
             // TODO find out how to write a message into messages tool window
         }
