@@ -85,10 +85,16 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
             String serverUri = path;
             if(!serverUri.endsWith("/")) serverUri += "/";
 
+            String normalizedQueryString = queryString;
+            normalizedQueryString = normalizedQueryString
+                    .replaceAll("\n","")
+                    .replaceAll("\t","")
+            ;
+
             final String txUri = serverUri + "transaction/commit";
             WebResource resource = Client.create().resource(txUri );
 
-            String payload = "{\"statements\" : [ {\"statement\" : \"" + queryString + "\"} ]}";
+            String payload = "{\"statements\" : [ {\"statement\" : \"" + normalizedQueryString + "\"} ]}";
             ClientResponse response = resource
                     .accept(MediaType.APPLICATION_JSON )
                     .type(MediaType.APPLICATION_JSON )
