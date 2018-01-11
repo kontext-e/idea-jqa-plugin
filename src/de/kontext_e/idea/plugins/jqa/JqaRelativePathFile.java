@@ -1,7 +1,5 @@
 package de.kontext_e.idea.plugins.jqa;
 
-import org.neo4j.graphdb.Node;
-
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -11,11 +9,7 @@ import com.intellij.usageView.UsageInfo;
 public class JqaRelativePathFile implements JqaClassFqnResult {
     private final String relativePath;
 
-    public JqaRelativePathFile(final Node node) {
-        this.relativePath = (String)node.getProperty("relativePath");
-    }
-
-    public JqaRelativePathFile(final String relativePath) {
+    JqaRelativePathFile(final String relativePath) {
         this.relativePath = relativePath;
     }
 
@@ -25,10 +19,6 @@ public class JqaRelativePathFile implements JqaClassFqnResult {
         if(virtualFile == null) return null;
         PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
         return new UsageInfo(psiFile, 0, 0);
-    }
-
-    public static boolean isResponsibleFor(final Node node) {
-        return node.hasProperty("relativePath");
     }
 
 }

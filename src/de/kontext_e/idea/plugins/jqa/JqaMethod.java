@@ -1,7 +1,5 @@
 package de.kontext_e.idea.plugins.jqa;
 
-import org.neo4j.graphdb.Label;
-
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
@@ -11,12 +9,6 @@ import com.intellij.usageView.UsageInfo;
 
 public class JqaMethod implements JqaClassFqnResult {
 
-    public static final Label LABEL_METHOD = new Label() {
-        @Override
-        public String name() {
-            return "Method";
-        }
-    };
     private String name;
     private String classFqn;
 
