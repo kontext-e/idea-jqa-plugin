@@ -14,6 +14,11 @@ public class JqaRelativePathFile implements JqaClassFqnResult {
     public JqaRelativePathFile(final Node node) {
         this.relativePath = (String)node.getProperty("relativePath");
     }
+
+    public JqaRelativePathFile(final String relativePath) {
+        this.relativePath = relativePath;
+    }
+
     @Override
     public UsageInfo toUsageInfo(final Project project) {
         VirtualFile virtualFile = project.getBaseDir().findFileByRelativePath(relativePath);

@@ -2,7 +2,6 @@ package de.kontext_e.idea.plugins.jqa;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JTextArea;
@@ -11,14 +10,12 @@ import javax.ws.rs.core.MediaType;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import org.neo4j.graphdb.Node;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.intellij.find.findUsages.PsiElement2UsageTargetAdapter;
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -31,6 +28,7 @@ import com.intellij.usages.UsageViewManager;
 import com.intellij.usages.UsageViewPresentation;
 
 import static com.intellij.notification.NotificationType.ERROR;
+import static com.intellij.notification.NotificationType.INFORMATION;
 
 class FindInNeo4jDatabaseAction extends AbstractAction {
 
@@ -108,7 +106,7 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
                     + System.lineSeparator() + "%s",
                     payload, txUri, response.getStatus(),
                     responseEntity);
-            showErrorBubble(message);
+            showInfoBubble(message);
             response.close();
 
             /////////////////////////////
@@ -120,7 +118,10 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
             p.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
 
             boolean isFqn = false;
-            final Collection<String> fqns = new ArrayList<>();
+            boolean isName = false;
+            boolean isSignature = false;
+            boolean isRelativePath = false;
+            String name = "";
             while(!p.isClosed()){
                 JsonToken jsonToken = p.nextToken();
                 if(jsonToken == JsonToken.FIELD_NAME) {
@@ -128,15 +129,41 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
                     if("fqn".equalsIgnoreCase(value)) {
                         isFqn = true;
                     }
+                    if("relativePath".equalsIgnoreCase(value)) {
+                        isRelativePath = true;
+                    }
+                    if("signature".equalsIgnoreCase(value)) {
+                        isSignature = true;
+                    }
+                    if("name".equalsIgnoreCase(value)) {
+                        isName = true;
+                    }
                 }
                 if(isFqn && jsonToken == JsonToken.VALUE_STRING) {
-                    fqns.add(p.getValueAsString());
+                    jqaResults.add(new JqaClass(p.getValueAsString()));
                     isFqn = false;
                 }
+                if(isRelativePath && jsonToken == JsonToken.VALUE_STRING) {
+                    jqaResults.add(new JqaRelativePathFile(p.getValueAsString()));
+                    isRelativePath = false;
+                }
+                if(isSignature && jsonToken == JsonToken.VALUE_STRING) {
+/*
+deactivated because I currently dont know how to get all classes of the project
+to look for methods with matching signature
+any hints welcome
+                    final JqaMethod jqaMethod = new JqaMethod(name, p.getValueAsString());
+                    jqaResults.add(jqaMethod);
+*/
+                    isSignature = false;
+                    name = "";
+                }
+                if(isName && jsonToken == JsonToken.VALUE_STRING) {
+                    name = p.getValueAsString();
+                    isName = false;
+                }
             }
-            System.out.println("FQNs: "+fqns);
 
-            readFqnsFromResult(fqns, jqaResults);
         } catch (Exception e) {
             String message = "Exception occured for database with path "+path+":  "+ e.toString();
             showErrorBubble(message);
@@ -145,34 +172,13 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
         return jqaResults;
     }
 
-    private void readFqnsFromResult(final Collection<String> result, final List<JqaClassFqnResult> jqaResults) {
-        for ( String row : result )
-        {
-            jqaResults.add(new JqaClass(row));
-        }
+    private static void showErrorBubble(final String message) {
+        Notification notification = new Notification("", "", message, ERROR);
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);
     }
 
-    private void ifNodeIsClassReadFqnProperty(final Node node, final List<JqaClassFqnResult> jqaResults) {
-        try {
-            if(JqaMethod.isResponsibleFor(node)) {
-                jqaResults.add(new JqaMethod(node));
-            }
-
-            if(JqaClass.isResponsibleFor(node)) {
-                jqaResults.add(new JqaClass(node));
-            }
-
-            if(JqaRelativePathFile.isResponsibleFor(node)) {
-                jqaResults.add(new JqaRelativePathFile(node));
-            }
-        } catch(Exception e) {
-            // TODO find out how to write a message into messages tool window
-        }
-    }
-
-    public static void showErrorBubble(final String message) {
-        NotificationType notificationType = ERROR;
-        Notification notification = new Notification("", "", message, notificationType);
+    private static void showInfoBubble(final String message) {
+        Notification notification = new Notification("", "", message, INFORMATION);
         ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);
     }
 
