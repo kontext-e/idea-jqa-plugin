@@ -4,7 +4,6 @@ import java.util.List;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -17,7 +16,7 @@ public class FindInNeo4jDatabaseActionIT {
     private JTextArea textArea = new JTextArea();
     private JTextField textField = new JTextField();
 
-    @BeforeClass
+//    @BeforeClass
     public static void prepareTestDatabase() {
         CreateTestDatabase.createTestDatabase();
     }
@@ -29,14 +28,14 @@ public class FindInNeo4jDatabaseActionIT {
 
     @Test
     public void queryNeo4jForClasses() throws Exception {
-        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("jqassistant/store", "match (n:Class) return n");
+        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("test/store", "match (n:Class) return n");
 
         assertThat(fqns.size(), is(1));
     }
 
     @Test
     public void queryNeo4jForMethods() throws Exception {
-        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("jqassistant/store", "match (n:Method) return n");
+        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("test/store", "match (n:Method) return n");
 
         assertThat(fqns.size(), is(1));
         assertThat(((JqaMethod)fqns.get(0)).getClassFqn(), is(CreateTestDatabase.class.getName()));
@@ -44,7 +43,7 @@ public class FindInNeo4jDatabaseActionIT {
 
     @Test
     public void queryNeo4jForClassesAndMethods() throws Exception {
-        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("jqassistant/store", "match (n:Class), (m:Method) return n,m LIMIT 10");
+        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("test/store", "match (n:Class), (m:Method) return n,m LIMIT 10");
 
         assertThat(fqns.size(), is(2));
         assertThat(((JqaClass)fqns.get(0)).getClassFqn(), is(CreateTestDatabase.class.getName()));
