@@ -165,6 +165,7 @@ any hints welcome
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             String message = "Exception occured for database with path "+path+":  "+ e.toString();
             showErrorBubble(message);
         }
@@ -174,12 +175,16 @@ any hints welcome
 
     private static void showErrorBubble(final String message) {
         Notification notification = new Notification("", "", message, ERROR);
-        ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);
+        if(ApplicationManager.getApplication() != null) {
+            ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);
+        }
     }
 
     private static void showInfoBubble(final String message) {
         Notification notification = new Notification("", "", message, INFORMATION);
-        ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);
+        if(ApplicationManager.getApplication() != null) {
+            ApplicationManager.getApplication().getMessageBus().syncPublisher(Notifications.TOPIC).notify(notification);
+        }
     }
 
     private UsageViewPresentation createPresentation() {

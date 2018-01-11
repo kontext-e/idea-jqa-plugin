@@ -16,11 +16,6 @@ public class FindInNeo4jDatabaseActionIT {
     private JTextArea textArea = new JTextArea();
     private JTextField textField = new JTextField();
 
-//    @BeforeClass
-    public static void prepareTestDatabase() {
-        CreateTestDatabase.createTestDatabase();
-    }
-
     @Before
     public void setUp() {
         findInNeo4jDatabaseAction = new FindInNeo4jDatabaseAction(textArea, textField, null);
@@ -28,26 +23,8 @@ public class FindInNeo4jDatabaseActionIT {
 
     @Test
     public void queryNeo4jForClasses() throws Exception {
-        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("test/store", "match (n:Class) return n");
+        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("http://localhost:7474/db/data/", "match (n:Class) where n.fqn ends with 'Action' return n");
 
         assertThat(fqns.size(), is(1));
     }
-
-    @Test
-    public void queryNeo4jForMethods() throws Exception {
-        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("test/store", "match (n:Method) return n");
-
-        assertThat(fqns.size(), is(1));
-        assertThat(((JqaMethod)fqns.get(0)).getClassFqn(), is(CreateTestDatabase.class.getName()));
-    }
-
-    @Test
-    public void queryNeo4jForClassesAndMethods() throws Exception {
-        List<JqaClassFqnResult> fqns = findInNeo4jDatabaseAction.queryNeo4j("test/store", "match (n:Class), (m:Method) return n,m LIMIT 10");
-
-        assertThat(fqns.size(), is(2));
-        assertThat(((JqaClass)fqns.get(0)).getClassFqn(), is(CreateTestDatabase.class.getName()));
-        assertThat(((JqaMethod)fqns.get(1)).getClassFqn(), is(CreateTestDatabase.class.getName()));
-    }
-
 }
