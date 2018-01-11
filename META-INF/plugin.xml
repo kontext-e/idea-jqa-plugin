@@ -1,10 +1,21 @@
 <idea-plugin version="2">
   <id>de.kontext_e.idea.plugins.jqa</id>
   <name>jQAssistant Plugin</name>
-  <version>1.1</version>
+  <version>2.0</version>
   <vendor email="j.nerche@kontext-e.de" url="http://www.kontext-e.de">Kontext E GmbH</vendor>
 
   <description><![CDATA[
+<h1>New in version 2.0</h1>
+<ul>
+    <li>
+      Don't open Neo4j locally anymore because there were lots compatibility issues.
+      Now REST requests were sent to a running Neo4j.
+    </li>
+    <li>
+      Removed Neo4j jars.
+    </li>
+</ul>
+
 <h1>New in version 1.1</h1>
 <ul>
     <li>Update to Neo4j 2.2.0</li>
@@ -21,8 +32,8 @@ from <a href="http://jqassistant.org">jqassistant.org</a>, configure and run it 
 You can also use the jQAssistant plugins provided by Kontext E available at
 <a href="http://search.maven.org/#search|ga|1|de.kontext-e.jqassistant.plugin">maven central</a>.
 
-When you have created your database, you can open the jQA toolwindow. The database
-location has the default value where most probably the database files should reside.
+When you have created your database and started the jQAssistant server, you can open the jQA toolwindow. The database
+location has the default URL where most probably the database files should be found.
 Take the example query or enter your own and hit the 'Find' button gently. The result
 is shown in the standard Find toolwindow and you can use it to navigate as you know it.
 
@@ -32,8 +43,6 @@ You can find classes, methods and files where
 <ul>
 <li> * nodes have a 'fqn' property that contains the fully qualified name of a class in project scope,
  e.g. nodes with Class, CheckstyleFile, BugInstanceClass (of FindBugs plugin), JacocoClass lables</li>
-
-<li> * node have a 'Method' label,</li>
 
 <li> * nodes have a 'relativePath' property that contains the path of a file relative to the project root,
  e.g. with GitFile, GitCommitFile labels</li>

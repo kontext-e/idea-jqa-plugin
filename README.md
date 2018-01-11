@@ -20,7 +20,5 @@ You can find classes, methods and files where
 * nodes have a 'fqn' property that contains the fully qualified name of a class in project scope,
  e.g. nodes with Class, CheckstyleFile, BugInstanceClass (of FindBugs plugin), JacocoClass lables
 
-* node have a 'Method' label,
-
 * nodes have a 'relativePath' property that contains the path of a file relative to the project root,
  e.g. with GitFile, GitCommitFile labels
