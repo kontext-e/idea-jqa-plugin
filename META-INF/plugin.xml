@@ -54,7 +54,19 @@ You can find classes, methods and files where
     ]]></description>
 
   <change-notes><![CDATA[
-      Initial version.<br>
+<ul>
+    <li>
+      Don't open Neo4j locally anymore because there were lots compatibility issues.
+      Now REST requests were sent to a running Neo4j.
+    </li>
+    <li>
+      Removed Neo4j jars.
+    </li>
+    <li>
+      Because of the REST requests, the jQAssistant server can now run on any reachable
+      computer, e.g. a CI server.
+    </li>
+</ul>
     ]]>
   </change-notes>
 
@@ -69,8 +81,7 @@ You can find classes, methods and files where
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
-    <toolWindow id="Find using jQA DB" secondary="true" icon="/de/kontext_e/idea/plugins/jqa/jqa-kurz-weiß_13.png" anchor="right" factoryClass="de.kontext_e.idea.plugins.jqa.QueryToolWindow"   >
-
+    <toolWindow id="Find using jQA DB" secondary="true" icon="/de/kontext_e/idea/plugins/jqa/jqa-kurz-weiß_13.png" anchor="right" factoryClass="de.kontext_e.idea.plugins.jqa.QueryToolWindow">
     </toolWindow>
   </extensions>
 
