@@ -1,9 +1,11 @@
 package de.kontext_e.idea.plugins.jqa;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.AbstractAction;
+import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.ws.rs.core.MediaType;
@@ -32,18 +34,35 @@ import static com.intellij.notification.NotificationType.INFORMATION;
 
 class FindInNeo4jDatabaseAction extends AbstractAction {
 
-    private Project myProject;
+	private final JComboBox queryHistory;
+	private Project myProject;
     private JTextArea textArea;
     private JTextField neo4jPath;
 
-    public FindInNeo4jDatabaseAction(JTextArea textArea, JTextField neo4jPath, final Project project) {
+    public FindInNeo4jDatabaseAction(final JTextArea textArea, JTextField neo4jPath, final JComboBox queryHistory, final Project project) {
         this.textArea = textArea;
         this.neo4jPath = neo4jPath;
-        this.myProject = project;
+		this.queryHistory = queryHistory;
+		this.myProject = project;
+
+    	queryHistory.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				JComboBox cb = (JComboBox)e.getSource();
+				String selectedQuery = (String)cb.getSelectedItem();
+				textArea.setText(selectedQuery);
+			}
+		});
     }
 
     public void actionPerformed(ActionEvent e) {
         if(textArea.getText() == null) return;
+
+		queryHistory.insertItemAt(textArea.getText(), 0);
+		while(queryHistory.getItemCount() > 100) {
+			queryHistory.removeItemAt(queryHistory.getItemCount() - 1);
+		}
+
     	openFindTool(resolvePsiElements(queryNeo4j(neo4jPath.getText(), escape(textArea.getText()))));
     }
 
