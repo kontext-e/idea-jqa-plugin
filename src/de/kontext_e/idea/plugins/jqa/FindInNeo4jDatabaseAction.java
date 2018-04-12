@@ -43,10 +43,15 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        openFindTool(resolvePsiElements(queryNeo4j(neo4jPath.getText(), textArea.getText())));
+        if(textArea.getText() == null) return;
+    	openFindTool(resolvePsiElements(queryNeo4j(neo4jPath.getText(), escape(textArea.getText()))));
     }
 
-    void openFindTool(Usage[] theUsages) {
+	static String escape(String text) {
+		return text.replaceAll("\"", "\\\\\"");
+	}
+
+	void openFindTool(Usage[] theUsages) {
         try {
             UsageTarget[] usageTargets = new UsageTarget[] {
                     new PsiElement2UsageTargetAdapter(PsiManager.getInstance(myProject).findDirectory(myProject.getBaseDir()))
