@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -52,7 +53,8 @@ public class ToolWindowPanelBuilder {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
-        panel1.add(matchNCLASSReturnTextArea, gbc);
+		JScrollPane sp = new JScrollPane(matchNCLASSReturnTextArea);
+		panel1.add(sp, gbc);
         button1 = new JButton();
         button1.setLabel("Find");
         button1.setText("Find");
