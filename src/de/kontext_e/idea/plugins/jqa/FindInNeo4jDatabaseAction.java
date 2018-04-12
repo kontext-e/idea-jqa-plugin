@@ -2,6 +2,8 @@ package de.kontext_e.idea.plugins.jqa;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.AbstractAction;
@@ -53,18 +55,41 @@ class FindInNeo4jDatabaseAction extends AbstractAction {
 				textArea.setText(selectedQuery);
 			}
 		});
+
+    	textArea.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(final KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyPressed(final KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(final KeyEvent e) {
+				if((e.isAltDown() || e.isControlDown()) && e.getKeyCode() == 10) {
+					executeQuery();
+				}
+			}
+		});
     }
 
     public void actionPerformed(ActionEvent e) {
-        if(textArea.getText() == null) return;
+		executeQuery();
+    }
+
+	void executeQuery() {
+		if(textArea.getText() == null) return;
 
 		queryHistory.insertItemAt(textArea.getText(), 0);
 		while(queryHistory.getItemCount() > 100) {
 			queryHistory.removeItemAt(queryHistory.getItemCount() - 1);
 		}
 
-    	openFindTool(resolvePsiElements(queryNeo4j(neo4jPath.getText(), escape(textArea.getText()))));
-    }
+		openFindTool(resolvePsiElements(queryNeo4j(neo4jPath.getText(), escape(textArea.getText()))));
+	}
 
 	static String escape(String text) {
 		return text.replaceAll("\"", "\\\\\"");

@@ -16,6 +16,9 @@
     <li>
         Added a query history drop down box
     </li>
+    <li>
+        Execute query by Alt+Enter or Ctrl+Enter in query editor
+    </li>
 </ul>
 
 <h1>New in version 2.0</h1>
@@ -76,6 +79,9 @@ You can find classes, methods and files where
     </li>
     <li>
         Added a query history drop down box
+    </li>
+    <li>
+        Execute query by Alt+Enter or Ctrl+Enter in query editor
     </li>
 </ul>
     ]]>
