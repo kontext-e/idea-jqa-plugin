@@ -5,6 +5,16 @@
   <vendor email="j.nerche@kontext-e.de" url="http://www.kontext-e.de">Kontext E GmbH</vendor>
 
   <description><![CDATA[
+<h1>New in version 2.1</h1>
+<ul>
+    <li>
+        Added scrollbars to query text area
+    </li>
+    <li>
+        Bugfix: escape quotes in queries
+    </li>
+</ul>
+
 <h1>New in version 2.0</h1>
 <ul>
     <li>
@@ -56,15 +66,10 @@ You can find classes, methods and files where
   <change-notes><![CDATA[
 <ul>
     <li>
-      Don't open Neo4j locally anymore because there were lots compatibility issues.
-      Now REST requests were sent to a running Neo4j.
+        Added scrollbars to query text area
     </li>
     <li>
-      Removed Neo4j jars.
-    </li>
-    <li>
-      Because of the REST requests, the jQAssistant server can now run on any reachable
-      computer, e.g. a CI server.
+        Bugfix: escape quotes in queries
     </li>
 </ul>
     ]]>
